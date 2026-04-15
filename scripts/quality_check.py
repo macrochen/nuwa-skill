@@ -85,7 +85,7 @@ def check_tensions(content: str) -> tuple[bool, str]:
 def check_primary_sources(content: str) -> tuple[bool, str]:
     """检查一手来源占比"""
     # 找调研来源section
-    source_section = re.search(r'(?:##\s+.*来源|## Source|## Reference)(.*?)(?=\n##\s|\Z)', content, re.DOTALL | re.IGNORECASE)
+    source_section = re.search(r'^(?:##\s+[^\n]*来源|## Source|## Reference)(.*?)(?=^##\s|\Z)', content, re.DOTALL | re.MULTILINE | re.IGNORECASE)
     if not source_section:
         return True, "未找到来源section（跳过检查）"
 

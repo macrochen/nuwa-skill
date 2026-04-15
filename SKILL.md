@@ -226,6 +226,30 @@ description: |
 - 区分「他说过的」vs「别人说他的」vs「我推断的」
 - 发现矛盾时保留矛盾，不要和稀泥
 
+#### 执行约束（实际运行注意事项）
+
+**并行Agent限制**: 系统默认 `max_concurrent_children = 3`，不是6。需分批启动：
+- 第一批：Agent 1 (著作) + Agent 2 (对话) + Agent 3 (表达)
+- 第二批：Agent 4 (他者) + Agent 5 (决策) + Agent 6 (时间线)
+
+**文件写入问题（高频陷阱）**: 子Agent经常只返回搜索查询或总结，但不实际写入文件。**必须在每批Agent完成后立即验证文件是否已创建**：
+
+```python
+# 每批Agent完成后立即执行此检查
+import os
+research_dir = "/path/to/skill/references/research"
+expected_files = ["01-writings.md", "02-conversations.md", "03-expression-dna.md", 
+                  "04-external-views.md", "05-decisions.md", "06-timeline.md"]
+for f in expected_files:
+    path = os.path.join(research_dir, f)
+    if not os.path.exists(path) or os.path.getsize(path) < 100:
+        print(f"⚠️ 缺失或空文件: {f} - 需要手动创建")
+```
+
+如果文件缺失：基于Agent的总结内容，手动创建研究文件。不要等待或重试Agent——直接手动补充更可靠。
+
+**回退方案**: 当Agent表现不佳时，可基于自身知识手动创建研究文件，确保流程继续推进。
+
 #### Agent prompt模板
 
 spawn subagent时，用以下结构给任务（以Agent 1著作为例）：
